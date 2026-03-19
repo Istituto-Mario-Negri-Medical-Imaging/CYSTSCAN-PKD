@@ -1,0 +1,10 @@
+nibabel>=5.0
+numpy>=1.24
+scipy>=1.11
+scikit-image>=0.21
+edt>=2.3
+deap>=1.4
+pandas>=2.0
+openpyxl>=3.1
+matplotlib>=3.7
+SALib>=1.4
