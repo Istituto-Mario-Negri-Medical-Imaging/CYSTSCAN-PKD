@@ -26,7 +26,7 @@ function run_evaluation_core(params, scriptDir, outputDir)
 
     if ~exist(outputDir, 'dir'), mkdir(outputDir); end
 
-    dataDir = fullfile(scriptDir, '..', 'data', 'Evaluation set');
+    dataDir = fullfile(scriptDir, '..', 'data', '2_Cyst_counting_pipeline', 'Evaluation set');
     maskDir = fullfile(dataDir, 'Cyst masks');
     xlsFile = fullfile(dataDir, 'O1_O2_counts.xlsx');
 
