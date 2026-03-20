@@ -68,7 +68,7 @@ def _eval_batch(param_sets, gt_masks, gt_counts, n_workers=None):
 
 def run_sensitivity_analysis():
     repo_root  = Path(__file__).resolve().parent.parent
-    data_dir   = repo_root / 'data' / 'Optimization set'
+    data_dir   = repo_root / 'data' / '2_Cyst_counting_pipeline' / 'Optimization set'
     mask_dir   = data_dir / 'Cyst masks'
     xls_file   = data_dir / 'O1_count.xlsx'
     output_dir = repo_root / 'results' / 'sensitivity_analysis'
