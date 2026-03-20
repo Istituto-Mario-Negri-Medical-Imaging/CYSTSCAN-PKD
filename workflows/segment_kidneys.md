@@ -7,7 +7,7 @@ model, then count the cysts using the published optimal parameters.
 
 ## Prerequisites
 
-- Python 3.10+ in the `medimg` conda environment (or any env with nnunetv2)
+- Python 3.10+ with nnunetv2 installed (e.g. in a dedicated virtual environment)
 - Required packages (in addition to nnunetv2):
 
 ```bash
@@ -103,6 +103,6 @@ in the direct download URLs in `ZENODO_URLS` inside
 | Problem | Fix |
 |---------|-----|
 | `No Zenodo URL configured` | Fill in `ZENODO_URLS` (see above) |
-| `nnUNetv2_predict: command not found` | Activate the `medimg` conda environment |
+| `nnUNetv2_predict: command not found` | Activate the environment where nnunetv2 is installed |
 | Unexpected cyst counts | Verify the Sobel channel: mean of channel 1 in the preprocessed input should be ≈75.8 (training fingerprint) |
 | Wrong model directory structure after extraction | Ensure the zip contains `nnUNet_results/…` at the root |
