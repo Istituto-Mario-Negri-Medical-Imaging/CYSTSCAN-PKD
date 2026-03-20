@@ -72,6 +72,10 @@ def download_model(model_name: str, dest_dir: str | Path) -> Path:
             "Check the zip file structure."
         )
 
+    # Write a marker so model_is_downloaded() can identify this model
+    marker = dest_dir / f".model_{model_name}_ok"
+    marker.write_text(model_name)
+
     print(f"Model weights ready at: {results_dir}")
     return results_dir
 
@@ -109,7 +113,15 @@ def setup_nnunet_env(models_root: str | Path) -> None:
 
 
 def model_is_downloaded(model_name: str, models_root: str | Path) -> bool:
-    """Return True if all 5 fold checkpoints are present for model_name."""
+    """Return True if model_name has been downloaded and extracted.
+
+    Each successful download writes a small marker file so that different
+    models (which share the same nnUNet directory structure) can be
+    distinguished.
+    """
+    marker = Path(models_root) / f".model_{model_name}_ok"
+    if not marker.exists():
+        return False
     results_dir = Path(models_root) / _DATASET_PATH
     if not results_dir.exists():
         return False
