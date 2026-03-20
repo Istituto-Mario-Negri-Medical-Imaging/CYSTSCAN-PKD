@@ -4,9 +4,9 @@ Automated cyst counting in polycystic kidney disease (PKD) microCT segmentation 
 
 The algorithm detects cysts via distance-transform peak detection. A genetic algorithm is used to optimise the six algorithm parameters against manual counts from an Optimization set; performance is then measured on a separate Evaluation set using counts from two independent operators.
 
-This repository accompanies the paper (TO BE SUBMITTED SOON):
+This repository accompanies the paper:
 
-> *CYSTSCAN-PKD: a comprehensive pipeline for automatic cyst segmentation and counting on µCT scans from PKD animal models*, A. Mangili, A. Arrigoni, F. Sangalli, S. Fest-Santini, D. Corna, D. Cerullo, C. Xinaris, S. Tomasoni, M. Santini, A. Remuzzi, A. Caroli, *Computers in Biology and Medicine*, 2026. DOI: (to be updated)
+> *CYSTSCAN-PKD: a comprehensive pipeline for automatic cyst segmentation and counting on µCT scans from PKD animal models*, A. Mangili, A. Arrigoni, F. Sangalli, S. Fest-Santini, D. Corna, D. Cerullo, C. Xinaris, S. Tomasoni, M. Santini, A. Remuzzi, A. Caroli, *Computers in Biology and Medicine*, 2026. DOI: [DOI pending]
 
 ---
 
