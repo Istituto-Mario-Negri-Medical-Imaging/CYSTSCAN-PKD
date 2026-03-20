@@ -4,7 +4,7 @@
 %   Phase 2 – One-at-a-time (OAT) analysis, all 6 parameters ± 30 %
 %   Phase 3 – 2-D parameter interaction for the top 2 parameters
 %
-% Requires: run_optimization.m to have been run (reads Optimization set masks).
+% Requires: Optimization set data from Zenodo (see README for setup).
 
 clear
 clc
@@ -18,7 +18,7 @@ optimalParams = [4.27269938837114, 18.2632731580751, 42144.3492985436, ...
 paramNames    = {'minPeakSepSmall', 'minPeakSepLarge', 'largeCystVolThresh', ...
                  'maxPeakDistMerge', 'thresholdFraction', 'gaussianSigma'};
 
-dataDir  = fullfile(scriptDir, '..', 'data', 'Optimization set');
+dataDir  = fullfile(scriptDir, '..', 'data', '2_Cyst_counting_pipeline', 'Optimization set');
 maskDir  = fullfile(dataDir, 'Cyst masks');
 xlsFile  = fullfile(dataDir, 'O1_count.xlsx');
 outputDir = fullfile(scriptDir, '..', 'results', 'sensitivity_analysis');
