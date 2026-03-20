@@ -70,7 +70,7 @@ def _clip(individual):
 
 def run_optimization():
     repo_root  = Path(__file__).resolve().parent.parent
-    data_dir   = repo_root / 'data' / 'Optimization set'
+    data_dir   = repo_root / 'data' / '2_Cyst_counting_pipeline' / 'Optimization set'
     mask_dir   = data_dir / 'Cyst masks'
     output_dir = repo_root / 'results' / 'optimization'
     output_dir.mkdir(parents=True, exist_ok=True)
