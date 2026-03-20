@@ -16,7 +16,7 @@ delete(gcp('nocreate'));
 scriptDir  = fileparts(mfilename('fullpath'));
 addpath(scriptDir);                         % makes detectCystPeaks visible to parfor workers
 
-dataDir    = fullfile(scriptDir, '..', 'data', 'Optimization set');
+dataDir    = fullfile(scriptDir, '..', 'data', '2_Cyst_counting_pipeline', 'Optimization set');
 maskDir    = fullfile(dataDir, 'Cyst masks');
 outputDir  = fullfile(scriptDir, '..', 'results', 'optimization');
 
