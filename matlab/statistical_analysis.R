@@ -2,8 +2,8 @@
 # Bland-Altman and linear regression plots for the evaluation results.
 #
 # Input : results/evaluation/evaluation_results.csv
-#         (or results/evaluation_paper/evaluation_results.csv – change path below)
-# Output: results/evaluation/plots/
+#         (auto-falls back to results/evaluation_paper/ if not found)
+# Output: results/<evaluation or evaluation_paper>/plots/
 #
 # Required packages: readr, ggplot2, dplyr
 # Install with: install.packages(c("readr", "ggplot2", "dplyr"))
@@ -29,8 +29,13 @@ script_dir <- tryCatch(
 )
 
 repo_root <- normalizePath(file.path(script_dir, ".."))
-csv_file  <- file.path(repo_root, "results", "evaluation", "evaluation_results.csv")
-plot_dir  <- file.path(repo_root, "results", "evaluation", "plots")
+# Auto-detect: prefer results/evaluation/, fall back to results/evaluation_paper/
+esults_subdir <- "evaluation"
+if (!file.exists(file.path(repo_root, "results", "evaluation", "evaluation_results.csv"))) {
+  results_subdir <- "evaluation_paper"
+}
+csv_file  <- file.path(repo_root, "results", results_subdir, "evaluation_results.csv")
+plot_dir  <- file.path(repo_root, "results", results_subdir, "plots")
 
 dir.create(plot_dir, recursive = TRUE, showWarnings = FALSE)
 
