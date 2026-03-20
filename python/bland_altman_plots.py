@@ -1,8 +1,9 @@
 """bland_altman_plots.py
 Bland-Altman and linear regression plots for the evaluation results.
 
-Reads  : results/evaluation/evaluation_results.csv
-Writes : results/evaluation/plots/
+By default reads from results/evaluation/ (falling back to
+results/evaluation_paper/ if the former does not exist).
+Use --results-dir to override.
 
 This is a Python translation of statistical_analysis.R.
 """
@@ -80,9 +81,31 @@ def _regression(ax, x: np.ndarray, y: np.ndarray,
 
 
 def main():
+    import argparse
+    parser = argparse.ArgumentParser(
+        description='Bland-Altman and regression plots for the evaluation results.',
+    )
+    parser.add_argument(
+        '--results-dir', type=Path, default=None,
+        help=(
+            'Directory containing evaluation_results.csv '
+            '(default: results/evaluation/ or results/evaluation_paper/)'
+        ),
+    )
+    args = parser.parse_args()
+
     repo_root = Path(__file__).resolve().parent.parent
-    csv_file  = repo_root / 'results' / 'evaluation' / 'evaluation_results.csv'
-    plot_dir  = repo_root / 'results' / 'evaluation' / 'plots'
+
+    if args.results_dir is not None:
+        results_dir = args.results_dir
+    else:
+        # Auto-detect: prefer evaluation/, fall back to evaluation_paper/
+        results_dir = repo_root / 'results' / 'evaluation'
+        if not (results_dir / 'evaluation_results.csv').is_file():
+            results_dir = repo_root / 'results' / 'evaluation_paper'
+
+    csv_file = results_dir / 'evaluation_results.csv'
+    plot_dir = results_dir / 'plots'
     plot_dir.mkdir(parents=True, exist_ok=True)
 
     if not csv_file.is_file():
