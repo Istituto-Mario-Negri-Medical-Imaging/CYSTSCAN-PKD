@@ -12,12 +12,13 @@ Download the dataset from Zenodo and place the two folders inside `data/` at the
 ```
 CYSTSCAN-PKD/
 └── data/
-    ├── Optimization set/
-    │   ├── Cyst masks/          (10 .nii.gz files)
-    │   └── O1_count.xlsx
-    └── Evaluation set/
-        ├── Cyst masks/          (10 .nii.gz files)
-        └── O1_O2_counts.xlsx
+    └── 2_Cyst_counting_pipeline/
+        ├── Optimization set/
+        │   ├── Cyst masks/          (10 .nii.gz files)
+        │   └── O1_count.xlsx
+        └── Evaluation set/
+            ├── Cyst masks/          (10 .nii.gz files)
+            └── O1_O2_counts.xlsx
 ```
 
 ## Files
