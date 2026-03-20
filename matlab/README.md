@@ -34,7 +34,7 @@ CYSTSCAN-PKD/
 
 ## Usage
 
-**Step 1 – Optimise parameters** (takes ~30–60 min depending on hardware):
+**Step 1 – Optimise parameters:**
 
 ```matlab
 run_optimization
