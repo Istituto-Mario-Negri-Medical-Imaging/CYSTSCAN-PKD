@@ -74,8 +74,8 @@ python -m segmentation.count_cysts \
 | `run_inference.py` | CLI entry point: raw scan → segmentation mask |
 | `count_cysts.py` | CLI entry point: segmentation masks → cyst counts |
 
-## After uploading to Zenodo
+## Zenodo model weights
 
-Fill in `ZENODO_URLS` in `download_models.py` with the direct file URLs from
-your Zenodo record. See [workflows/segment_kidneys.md](../workflows/segment_kidneys.md)
-for the full procedure.
+Model weights are hosted on Zenodo at
+<https://doi.org/10.5281/zenodo.19097241>.
+The download URLs are configured in `ZENODO_URLS` inside `download_models.py`.
