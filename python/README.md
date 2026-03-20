@@ -10,7 +10,7 @@ pip install -r requirements.txt
 
 ## Data setup
 
-Same as the MATLAB pipeline: download from Zenodo and place the two folders under `data/` at the repository root.
+Same as the MATLAB pipeline: download from Zenodo and place `1_Segmentation_pipeline/` and `2_Cyst_counting_pipeline/` under `data/` at the repository root (see the main README).
 
 ## Files
 
