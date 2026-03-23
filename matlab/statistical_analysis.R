@@ -30,7 +30,7 @@ script_dir <- tryCatch(
 
 repo_root <- normalizePath(file.path(script_dir, ".."))
 # Auto-detect: prefer results/evaluation/, fall back to results/evaluation_paper/
-esults_subdir <- "evaluation"
+results_subdir <- "evaluation"
 if (!file.exists(file.path(repo_root, "results", "evaluation", "evaluation_results.csv"))) {
   results_subdir <- "evaluation_paper"
 }

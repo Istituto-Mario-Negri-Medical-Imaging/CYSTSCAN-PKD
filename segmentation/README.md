@@ -4,7 +4,7 @@ Kidney and cyst segmentation of rat microCT scans using pre-trained nnUNet v2 mo
 
 ## Requirements
 
-In addition to `nnunetv2` (Python 3.8+, torch ≥ 2.2):
+This repository requires **Python 3.10+**. In addition to `nnunetv2` (which itself requires Python 3.8+, torch ≥ 2.2):
 
 ```bash
 pip install SimpleITK scipy requests tqdm
@@ -39,6 +39,11 @@ python -m segmentation.run_inference \
 ```
 
 `--models-dir` is where weights are cached (default: `./models/`).
+
+> **Note for Zenodo dataset users:** The test-set images on Zenodo are named
+> `KRATS_XXX_0000.nii.gz` (nnUNet channel suffix). Pass the file as-is —
+> the script creates the two-channel nnUNet input internally and uses the
+> full filename (including `_0000`) as the case identifier, which is harmless.
 
 ### Count cysts from the segmentation output
 

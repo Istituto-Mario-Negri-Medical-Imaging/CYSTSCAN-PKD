@@ -5,7 +5,7 @@
 Python 3.10 or later. Install dependencies with:
 
 ```bash
-pip install -r requirements.txt
+pip install -r python/requirements.txt
 ```
 
 ## Data setup
@@ -31,20 +31,22 @@ Same as the MATLAB pipeline: download from Zenodo and place `1_Segmentation_pipe
 
 ## Usage
 
+Run all commands from the **repository root**:
+
 ```bash
 # Step 1 – optimise parameters (takes time)
-python run_optimization.py
+python python/run_optimization.py
 
 # Step 2 – evaluate on held-out cases
-python run_evaluation.py           # uses BestParams.txt from Step 1
+python python/run_evaluation.py           # uses BestParams.txt from Step 1
 # or
-python run_evaluation_paper.py     # uses published parameters, no Step 1 needed
+python python/run_evaluation_paper.py     # uses published parameters, no Step 1 needed
 
 # Optional – sensitivity analysis
-python sensitivity_analysis.py
+python python/sensitivity_analysis.py
 
 # Optional – statistical plots
-python bland_altman_plots.py
+python python/bland_altman_plots.py
 ```
 
 ## Differences from the MATLAB implementation

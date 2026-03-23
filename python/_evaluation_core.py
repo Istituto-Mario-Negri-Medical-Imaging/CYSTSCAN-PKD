@@ -40,6 +40,7 @@ def run_evaluation_core(params, output_dir: Path, label: str = ''):
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
+    repo_root = Path(__file__).resolve().parent.parent
     data_dir = repo_root / 'data' / '2_Cyst_counting_pipeline' / 'Evaluation set'
     
     mask_dir = data_dir / 'Cyst masks'

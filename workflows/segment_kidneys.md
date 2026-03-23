@@ -83,21 +83,6 @@ python -m segmentation.count_cysts \
 
 ---
 
-## One-time: packaging models for Zenodo (maintainers only)
-
-Before the model weights are on Zenodo, run this script once to create the
-upload-ready zip files:
-
-```bash
-python tools/package_models_for_zenodo.py
-```
-
-Zips are written to `.tmp/zenodo_packages/`. After uploading to Zenodo, fill
-in the direct download URLs in `ZENODO_URLS` inside
-`segmentation/download_models.py`.
-
----
-
 ## Troubleshooting
 
 | Problem | Fix |
