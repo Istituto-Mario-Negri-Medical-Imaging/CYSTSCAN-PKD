@@ -4,6 +4,14 @@
 
 # CYSTSCAN-PKD
 
+[![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![MATLAB](https://img.shields.io/badge/MATLAB-R2020b%2B-e16737?logo=mathworks&logoColor=white)](https://www.mathworks.com/)
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue)](LICENSE)
+[![Dataset](https://img.shields.io/badge/Dataset-Zenodo-024D9C?logo=zenodo&logoColor=white)](https://doi.org/10.5281/zenodo.19049543)
+[![Model Weights](https://img.shields.io/badge/Model%20Weights-Zenodo-024D9C?logo=zenodo&logoColor=white)](https://doi.org/10.5281/zenodo.19097241)
+<!-- When paper DOI is available, replace the badge below with: [![DOI](https://img.shields.io/badge/DOI-10.XXXX%2FXXXXX-blue)](https://doi.org/10.XXXX/XXXXX) -->
+![Paper DOI](https://img.shields.io/badge/Paper_DOI-pending-lightgrey)
+
 Automated cyst counting in polycystic kidney disease (PKD) microCT segmentation masks.
 
 The algorithm detects cysts via distance-transform peak detection. A genetic algorithm is used to optimise the six algorithm parameters against manual counts from an Optimization set; performance is then measured on a separate Evaluation set using counts from two independent operators.
@@ -135,7 +143,7 @@ python -m segmentation.count_cysts \
 ```
 
 Available models: `n5`, `n10`, `n15`, `n20` (2-channel: microCT + Sobel edges), `n5_1C` (1-channel baseline).
-See [segmentation/README.md](segmentation/README.md) for details.
+See [segmentation/README.md](segmentation/README.md) for module details, or [workflows/segment_kidneys.md](workflows/segment_kidneys.md) for a complete step-by-step guide including prerequisites, troubleshooting, and running both steps in sequence.
 
 ---
 
