@@ -1,0 +1,68 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+type: software
+title: CYSTSCAN-PKD
+abstract: >
+  Automated cyst counting in polycystic kidney disease (PKD) microCT
+  segmentation masks. The algorithm detects cysts via distance-transform
+  peak detection; a genetic algorithm optimises the six algorithm parameters
+  against manual counts.
+authors:
+  - family-names: Mangili
+    given-names: "A."
+  - family-names: Arrigoni
+    given-names: "A."
+  - family-names: Sangalli
+    given-names: "F."
+  - family-names: Fest-Santini
+    given-names: "S."
+  - family-names: Corna
+    given-names: "D."
+  - family-names: Cerullo
+    given-names: "D."
+  - family-names: Xinaris
+    given-names: "C."
+  - family-names: Tomasoni
+    given-names: "S."
+  - family-names: Santini
+    given-names: "M."
+  - family-names: Remuzzi
+    given-names: "A."
+  - family-names: Caroli
+    given-names: "A."
+repository-code: "https://github.com/Istituto-Mario-Negri-Medical-Imaging/CYSTSCAN-PKD"
+license: Apache-2.0
+
+# When the paper DOI is available, uncomment and fill in the block below,
+# then remove or update the preferred-citation comment.
+# preferred-citation:
+#   type: article
+#   title: >
+#     CYSTSCAN-PKD: a comprehensive pipeline for automatic cyst segmentation
+#     and counting on µCT scans from PKD animal models
+#   authors:
+#     - family-names: Mangili
+#       given-names: "A."
+#     - family-names: Arrigoni
+#       given-names: "A."
+#     - family-names: Sangalli
+#       given-names: "F."
+#     - family-names: Fest-Santini
+#       given-names: "S."
+#     - family-names: Corna
+#       given-names: "D."
+#     - family-names: Cerullo
+#       given-names: "D."
+#     - family-names: Xinaris
+#       given-names: "C."
+#     - family-names: Tomasoni
+#       given-names: "S."
+#     - family-names: Santini
+#       given-names: "M."
+#     - family-names: Remuzzi
+#       given-names: "A."
+#     - family-names: Caroli
+#       given-names: "A."
+#   journal: "Computers in Biology and Medicine"
+#   year: 2026
+#   doi: "10.XXXX/XXXXX"
