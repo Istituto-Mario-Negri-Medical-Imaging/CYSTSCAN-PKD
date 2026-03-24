@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="CYSTSCAN-PKD-logo.png" alt="CYSTSCAN-PKD Logo" width="600">
+</p>
+
 # CYSTSCAN-PKD
 
 Automated cyst counting in polycystic kidney disease (PKD) microCT segmentation masks.
