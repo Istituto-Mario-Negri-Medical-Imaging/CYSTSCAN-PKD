@@ -12,9 +12,9 @@
 <!-- When paper DOI is available, replace the badge below with: [![DOI](https://img.shields.io/badge/DOI-10.XXXX%2FXXXXX-blue)](https://doi.org/10.XXXX/XXXXX) -->
 ![Paper DOI](https://img.shields.io/badge/Paper_DOI-pending-lightgrey)
 
-Automated cyst counting in polycystic kidney disease (PKD) microCT segmentation masks.
+Automated cyst segmentation and counting in polycystic kidney disease (PKD) microCT scans.
 
-The algorithm detects cysts via distance-transform peak detection. A genetic algorithm is used to optimise the six algorithm parameters against manual counts from an Optimization set; performance is then measured on a separate Evaluation set using counts from two independent operators.
+The segmentation pipeline automatically segment kidney and cysts from microCT scans, using the nnU-Net framework. The algorithm detects cysts via distance-transform peak detection from the segmentation masks. A genetic algorithm is used to optimise the six algorithm parameters against manual counts from an Optimization set; performance is then measured on a separate Evaluation set using counts from two independent operators.
 
 This repository accompanies the paper:
 
