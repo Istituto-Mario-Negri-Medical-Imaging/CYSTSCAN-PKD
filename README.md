@@ -9,8 +9,7 @@
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue)](LICENSE)
 [![Dataset](https://img.shields.io/badge/Dataset-Zenodo-024D9C?logo=zenodo&logoColor=white)](https://doi.org/10.5281/zenodo.19049543)
 [![Model Weights](https://img.shields.io/badge/Model%20Weights-Zenodo-024D9C?logo=zenodo&logoColor=white)](https://doi.org/10.5281/zenodo.19097241)
-<!-- When paper DOI is available, replace the badge below with: [![DOI](https://img.shields.io/badge/DOI-10.XXXX%2FXXXXX-blue)](https://doi.org/10.XXXX/XXXXX) -->
-![Paper DOI](https://img.shields.io/badge/Paper_DOI-pending-lightgrey)
+[![DOI](https://img.shields.io/badge/DOI-10.1038%2Fs41598--026--61818--7-blue)](https://doi.org/10.1038/s41598-026-61818-7)
 
 Automated cyst segmentation and counting in polycystic kidney disease (PKD) microCT scans.
 
@@ -18,7 +17,7 @@ The segmentation pipeline automatically segment kidney and cysts from microCT sc
 
 This repository accompanies the paper:
 
-> *CYSTSCAN-PKD: a comprehensive pipeline for automatic cyst segmentation and counting on µCT scans from PKD animal models*, A. Mangili, A. Arrigoni, F. Sangalli, S. Fest-Santini, D. Corna, D. Cerullo, C. Xinaris, S. Tomasoni, M. Santini, A. Remuzzi, A. Caroli, *Scientific Reports*, 2026. DOI: [DOI pending]
+> *CYSTSCAN-PKD: a comprehensive pipeline for automatic cyst segmentation and counting on µCT scans from PKD animal models*, A. Mangili, A. Arrigoni, F. Sangalli, S. Fest-Santini, D. Corna, D. Cerullo, C. Xinaris, S. Tomasoni, M. Santini, A. Remuzzi, A. Caroli, *Scientific Reports*, 2026. DOI: [10.1038/s41598-026-61818-7](https://doi.org/10.1038/s41598-026-61818-7)
 
 ---
 
