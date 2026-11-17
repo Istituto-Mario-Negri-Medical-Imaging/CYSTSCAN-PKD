@@ -9,11 +9,8 @@ See python/README.md for differences from the MATLAB implementation.
 """
 
 import argparse
-import os
 import sys
 import random
-import time
-import warnings
 from pathlib import Path
 
 import numpy as np
@@ -22,7 +19,7 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
-from deap import base, creator, tools, algorithms
+from deap import base, creator, tools
 
 from cystscan.fitness import evaluate_params
 

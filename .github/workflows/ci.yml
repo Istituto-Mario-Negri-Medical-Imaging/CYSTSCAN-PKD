@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install
+        run: pip install ".[analysis,test]"
+      - name: Lint
+        run: ruff check .
+      - name: Tests
+        run: pytest -m "not gpu"
+
+  docker-cpu:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build CPU image
+        run: docker build -f docker/Dockerfile.cpu -t cystscan:cpu .
+      - name: Count the synthetic fixture
+        run: |
+          docker run --rm -v "$PWD/tests/data:/data:ro" -v "$PWD/out:/out" \
+            cystscan:cpu count --input-dir /data --output /out/counts.csv
+          cat out/counts.csv
+          python3 - <<'PY'
+          import csv, json
+          expected = json.load(open("tests/data/expected_counts.json"))
+          rows = list(csv.reader(open("out/counts.csv")))
+          print(rows)
+          got = {r[0].removesuffix(".nii.gz"): int(r[1]) for r in rows[1:]}
+          assert got == expected, (got, expected)
+          PY

@@ -1,0 +1,18 @@
+# Segmentation and counting on an NVIDIA GPU:
+#   docker run --gpus all -v <weights>:/models -v <scans>:/data cystscan:gpu \
+#       segment --input /data/<scan>_0000.nii.gz --model n5 --output /data/out
+# Weights are downloaded into /models at the first run (md5 checked), not baked in.
+FROM pytorch/pytorch:2.15.0-cuda13.2-cudnn9-runtime
+
+WORKDIR /opt/cystscan
+COPY requirements/lock-gpu.txt requirements/lock-gpu.txt
+RUN pip install --no-cache-dir -r requirements/lock-gpu.txt
+
+COPY pyproject.toml README.md LICENSE ./
+COPY cystscan cystscan
+RUN pip install --no-cache-dir --no-deps .
+
+WORKDIR /
+VOLUME ["/models"]
+ENTRYPOINT ["cystscan"]
+CMD ["--help"]

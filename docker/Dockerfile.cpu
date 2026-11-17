@@ -1,0 +1,14 @@
+# Counting only (no segmentation): cystscan count --input-dir /data
+FROM python:3.10-slim
+
+WORKDIR /opt/cystscan
+COPY requirements/lock-cpu.txt requirements/lock-cpu.txt
+RUN pip install --no-cache-dir -r requirements/lock-cpu.txt
+
+COPY pyproject.toml README.md LICENSE ./
+COPY cystscan cystscan
+RUN pip install --no-cache-dir --no-deps .
+
+WORKDIR /
+ENTRYPOINT ["cystscan"]
+CMD ["--help"]

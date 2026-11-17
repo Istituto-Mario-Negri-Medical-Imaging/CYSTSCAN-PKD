@@ -13,7 +13,6 @@ results are methodologically equivalent.
 import sys
 import time
 from pathlib import Path
-from concurrent.futures import ProcessPoolExecutor
 import os
 
 import numpy as np

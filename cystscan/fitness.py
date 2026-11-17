@@ -36,7 +36,6 @@ def evaluate_params(
     metrics : dict with per-case and aggregate statistics.
     """
     gt = np.asarray(gt_counts, dtype=float)
-    n  = len(gt_masks)
 
     import os
     if n_workers == -1:

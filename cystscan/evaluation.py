@@ -98,7 +98,7 @@ def run_evaluation_core(params, output_dir: Path, label: str = '', *, data_dir: 
     fig.savefig(output_dir / 'scatter.png', dpi=150)
     fig.savefig(output_dir / 'scatter.svg')
     plt.close(fig)
-    print(f'Scatter plot saved.\n')
+    print('Scatter plot saved.\n')
 
 
 def _scatter_panel(ax, gt, pred, m, gt_label, color):

@@ -34,3 +34,16 @@ cystscan = ["data/*.json"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+markers = ["gpu: needs an NVIDIA GPU and local test scans"]
+
+[tool.ruff]
+line-length = 100
+extend-exclude = ["matlab", "workflows"]
+
+[tool.ruff.lint]
+# pyflakes and syntax errors only; the paper scripts keep their layout
+select = ["E9", "F"]
+
+[tool.ruff.lint.per-file-ignores]
+# wrappers re-export the package modules for old import paths
+"segmentation/*.py" = ["F401", "F403"]

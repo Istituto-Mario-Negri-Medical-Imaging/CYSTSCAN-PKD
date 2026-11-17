@@ -44,3 +44,7 @@ plots_percentage.R
 # Build output
 build/
 dist/
+
+# Tool caches
+.ruff_cache/
+.pytest_cache/
