@@ -1,4 +1,4 @@
-"""detect_cyst_peaks.py
+"""cystscan.counting (formerly python/detect_cyst_peaks.py)
 Count cysts in a NIfTI segmentation mask via distance-transform peak detection.
 
 This is a direct Python translation of detectCystPeaks.m.
@@ -21,6 +21,18 @@ except ImportError:
     from scipy.ndimage import distance_transform_edt as _scipy_edt
     def _distance_transform(mask):
         return _scipy_edt(mask).astype(np.float32)
+
+# Published parameters (paper; identical to sensitivity_analysis.m), in the order
+# minPeakSepSmall, minPeakSepLarge, largeCystVolThresh, maxPeakDistMerge,
+# thresholdFraction, gaussianSigma.
+PUBLISHED_PARAMS = np.array([
+    4.27269938837114,
+    18.2632731580751,
+    42144.3492985436,
+    14.9647743085524,
+    0.111299008136904,
+    0.918315428393029,
+])
 
 
 def detect_cyst_peaks(mask_path: str, params: list | np.ndarray) -> int:

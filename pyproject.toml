@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=77"]  # SPDX license string
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cystscan"
+version = "1.0.0.dev0"
+description = "Cyst segmentation and counting in micro-CT scans of PKD rat kidneys"
+readme = "README.md"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+requires-python = ">=3.10"
+dependencies = [
+    "numpy",
+    "scipy",
+    "scikit-image",
+    "nibabel",
+    "edt",
+]
+
+[project.optional-dependencies]
+analysis = ["deap", "SALib", "pandas", "openpyxl", "matplotlib"]
+segmentation = ["nnunetv2", "torch", "SimpleITK", "requests", "tqdm"]
+test = ["pytest", "ruff"]
+
+[project.scripts]
+cystscan = "cystscan.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["cystscan*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

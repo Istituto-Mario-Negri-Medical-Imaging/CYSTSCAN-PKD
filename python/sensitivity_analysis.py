@@ -22,8 +22,7 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
-sys.path.insert(0, str(Path(__file__).parent))
-from fitness_function import evaluate_params
+from cystscan.fitness import evaluate_params
 
 # ---- Configuration --------------------------------------------------------
 

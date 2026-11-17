@@ -23,9 +23,7 @@ import matplotlib.pyplot as plt
 
 from deap import base, creator, tools, algorithms
 
-# Ensure the python/ directory is on the path when called from elsewhere
-sys.path.insert(0, str(Path(__file__).parent))
-from fitness_function import evaluate_params
+from cystscan.fitness import evaluate_params
 
 
 # ---- Parameter bounds (must match MATLAB) ---------------------------------
