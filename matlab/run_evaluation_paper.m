@@ -12,8 +12,8 @@ scriptDir = fileparts(mfilename('fullpath'));
 addpath(scriptDir);
 
 %% Published parameters (from the paper, identical to those used in sensitivity_analysis.m)
-params = [4.27269938837114, 18.2632731580751, 42144.3492985436, ...
-          14.9647743085524, 0.111299008136904, 0.918315428393029];
+cfg = jsondecode(fileread(fullfile(scriptDir, '..', 'cystscan', 'data', 'published_params.json')));
+params = cfg.values(:)';
 
 fprintf('Using published parameters:\n');
 fprintf('  [%.6f, %.6f, %.2f, %.6f, %.6f, %.6f]\n\n', params);

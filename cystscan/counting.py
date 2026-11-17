@@ -13,6 +13,8 @@ from scipy.ndimage import gaussian_filter, label
 from scipy.spatial.distance import cdist
 from skimage.exposure import equalize_adapthist
 from skimage.morphology import local_maxima
+
+from cystscan.params import load_published_params
 try:
     import edt as _edt
     def _distance_transform(mask):
@@ -22,17 +24,8 @@ except ImportError:
     def _distance_transform(mask):
         return _scipy_edt(mask).astype(np.float32)
 
-# Published parameters (paper; identical to sensitivity_analysis.m), in the order
-# minPeakSepSmall, minPeakSepLarge, largeCystVolThresh, maxPeakDistMerge,
-# thresholdFraction, gaussianSigma.
-PUBLISHED_PARAMS = np.array([
-    4.27269938837114,
-    18.2632731580751,
-    42144.3492985436,
-    14.9647743085524,
-    0.111299008136904,
-    0.918315428393029,
-])
+# Published parameters (paper), from cystscan/data/published_params.json.
+PUBLISHED_PARAMS = load_published_params()
 
 
 def detect_cyst_peaks(mask_path: str, params: list | np.ndarray) -> int:

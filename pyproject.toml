@@ -29,5 +29,8 @@ cystscan = "cystscan.cli:main"
 [tool.setuptools.packages.find]
 include = ["cystscan*"]
 
+[tool.setuptools.package-data]
+cystscan = ["data/*.json"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]

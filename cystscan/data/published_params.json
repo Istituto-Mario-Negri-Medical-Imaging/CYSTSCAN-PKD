@@ -1,0 +1,19 @@
+{
+  "order": [
+    "minPeakSepSmall",
+    "minPeakSepLarge",
+    "largeCystVolThresh",
+    "maxPeakDistMerge",
+    "thresholdFraction",
+    "gaussianSigma"
+  ],
+  "values": [
+    4.27269938837114,
+    18.2632731580751,
+    42144.3492985436,
+    14.9647743085524,
+    0.111299008136904,
+    0.918315428393029
+  ],
+  "source": "Sci Rep 2026, doi 10.1038/s41598-026-61818-7"
+}
