@@ -1,26 +1,34 @@
-"""download_models.py
-Download nnUNet model weights from Zenodo and set up the directory structure.
+"""Download nnUNet model weights from Zenodo and set up the directory structure.
+
+Every archive is checked against the md5 that Zenodo lists for it before it
+is extracted.
 """
 
 from __future__ import annotations
 
+import hashlib
 import os
 import zipfile
 from pathlib import Path
 
-import requests
-from tqdm import tqdm
-
 # ---------------------------------------------------------------------------
-# Zenodo file URLs  (record: https://doi.org/10.5281/zenodo.19097241)
+# Zenodo files (record: https://doi.org/10.5281/zenodo.19097241).
+# md5 values copied from https://zenodo.org/api/records/19097241,
+# field files[].checksum.
 # ---------------------------------------------------------------------------
-ZENODO_URLS: dict[str, str | None] = {
-    "n5":    "https://zenodo.org/records/19097241/files/nnUNet_n5_weights.zip",
-    "n10":   "https://zenodo.org/records/19097241/files/nnUNet_n10_weights.zip",
-    "n15":   "https://zenodo.org/records/19097241/files/nnUNet_n15_weights.zip",
-    "n20":   "https://zenodo.org/records/19097241/files/nnUNet_n20_weights.zip",
-    "n5_1C": "https://zenodo.org/records/19097241/files/nnUNet_n5_1C_weights.zip",
+_RECORD = "https://zenodo.org/records/19097241/files"
+ZENODO_FILES: dict[str, tuple[str, str]] = {
+    "n5":    (f"{_RECORD}/nnUNet_n5_weights.zip",    "4e7a9e53f0463579b5238136bfbb43cf"),
+    "n10":   (f"{_RECORD}/nnUNet_n10_weights.zip",   "135f2c35399b88a9e5a0353442409bf0"),
+    "n15":   (f"{_RECORD}/nnUNet_n15_weights.zip",   "521655a76a0424b2fda3107c65c13592"),
+    "n20":   (f"{_RECORD}/nnUNet_n20_weights.zip",   "cd4d51fe273ea96be4e9036cc16f9a27"),
+    "n5_1C": (f"{_RECORD}/nnUNet_n5_1C_weights.zip", "587c5e0de65d657463a95499044a2e72"),
 }
+# Kept for code that imported the URL table directly.
+ZENODO_URLS: dict[str, str] = {name: url for name, (url, _) in ZENODO_FILES.items()}
+
+# Zenodo refuses some generic HTTP clients; identify the tool.
+_USER_AGENT = "cystscan-weights-download"
 
 # Internal nnUNet subdirectory that the zip extracts into
 _RESULTS_SUBPATH = "nnUNet_results"
@@ -47,19 +55,31 @@ def download_model(model_name: str, dest_dir: str | Path) -> Path:
     dest_dir = Path(dest_dir)
     dest_dir.mkdir(parents=True, exist_ok=True)
 
-    url = ZENODO_URLS.get(model_name)
-    if url is None:
+    if model_name not in ZENODO_FILES:
         raise ValueError(
-            f"No Zenodo URL configured for model '{model_name}'. "
-            "Edit ZENODO_URLS in segmentation/download_models.py after uploading to Zenodo."
+            f"Unknown model '{model_name}'. Choose one of: {', '.join(ZENODO_FILES)}."
         )
+    url, md5 = ZENODO_FILES[model_name]
 
     zip_path = dest_dir / f"nnUNet_{model_name}_weights.zip"
     if not zip_path.exists():
         print(f"Downloading {model_name} weights from Zenodo ...")
-        _download_with_progress(url, zip_path)
+        part = zip_path.with_name(zip_path.name + ".part")
+        try:
+            _download_with_progress(url, part)
+        except BaseException:
+            part.unlink(missing_ok=True)
+            raise
+        part.replace(zip_path)
     else:
         print(f"Archive already present: {zip_path}")
+
+    if file_md5(zip_path) != md5:
+        zip_path.unlink()
+        raise RuntimeError(
+            f"checksum mismatch for {model_name}: the archive was deleted; "
+            "run the download again."
+        )
 
     print(f"Extracting {zip_path.name} ...")
     with zipfile.ZipFile(zip_path, "r") as zf:
@@ -80,20 +100,41 @@ def download_model(model_name: str, dest_dir: str | Path) -> Path:
     return results_dir
 
 
+def file_md5(path: str | Path, chunk_size: int = 1 << 20) -> str:
+    """Hex md5 of a file, read in chunks."""
+    h = hashlib.md5()
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(chunk_size), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def _http_get(url: str):
+    import requests
+
+    return requests.get(url, stream=True, timeout=60,
+                        headers={"User-Agent": _USER_AGENT})
+
+
 def _download_with_progress(url: str, dest_path: Path) -> None:
-    response = requests.get(url, stream=True, timeout=60)
+    response = _http_get(url)
     response.raise_for_status()
     total = int(response.headers.get("content-length", 0))
-    with open(dest_path, "wb") as f, tqdm(
-        total=total,
-        unit="B",
-        unit_scale=True,
-        unit_divisor=1024,
-        desc=dest_path.name,
-    ) as bar:
-        for chunk in response.iter_content(chunk_size=8192):
-            f.write(chunk)
-            bar.update(len(chunk))
+    try:
+        from tqdm import tqdm
+        bar = tqdm(total=total, unit="B", unit_scale=True, unit_divisor=1024,
+                   desc=dest_path.name)
+    except ImportError:
+        bar = None
+    try:
+        with open(dest_path, "wb") as f:
+            for chunk in response.iter_content(chunk_size=1 << 16):
+                f.write(chunk)
+                if bar is not None:
+                    bar.update(len(chunk))
+    finally:
+        if bar is not None:
+            bar.close()
 
 
 def setup_nnunet_env(models_root: str | Path) -> None:
