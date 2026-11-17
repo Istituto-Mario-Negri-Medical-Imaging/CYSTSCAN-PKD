@@ -3,10 +3,10 @@ message: "If you use this software, please cite it as below."
 type: software
 title: CYSTSCAN-PKD
 abstract: >
-  Automated cyst counting in polycystic kidney disease (PKD) microCT
-  segmentation masks. The algorithm detects cysts via distance-transform
-  peak detection; a genetic algorithm optimises the six algorithm parameters
-  against manual counts.
+  Automated cyst segmentation and counting in polycystic kidney disease (PKD)
+  microCT scans. nnU-Net v2 models segment kidney and cysts; the counting
+  algorithm detects cysts via distance-transform peak detection, with six
+  parameters optimised by a genetic algorithm against manual counts.
 authors:
   - family-names: Mangili
     given-names: "A."

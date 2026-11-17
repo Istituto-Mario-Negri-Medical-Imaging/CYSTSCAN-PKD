@@ -1,9 +1,10 @@
 # tools/
 
-This directory contains maintainer-only scripts used to prepare data or model
-packages for upload to Zenodo. They are **not needed** for running the
+This directory contains maintainer-only scripts: test fixtures and Zenodo
+packaging. They are **not needed** for running the
 analysis pipelines described in the main README.
 
 | Script | Purpose |
 |--------|---------|
 | `package_models_for_zenodo.py` | Zip trained nnUNet weights for Zenodo upload; writes to `.tmp/zenodo_packages/` |
+| `make_demo_fixtures.py` | Write the synthetic test mask and `expected_counts.json` into `tests/data/` |
