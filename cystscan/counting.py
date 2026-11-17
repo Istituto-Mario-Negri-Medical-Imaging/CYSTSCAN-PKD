@@ -1,19 +1,22 @@
 """cystscan.counting (formerly python/detect_cyst_peaks.py)
 Count cysts in a NIfTI segmentation mask via distance-transform peak detection.
 
-This is a direct Python translation of detectCystPeaks.m.
-See python/README.md for known differences from the MATLAB implementation.
+Python port of matlab/detectCystPeaks.m. It gives the same counts as the
+MATLAB function: CLAHE and the Gaussian filter follow MATLAB's adapthisteq and
+imgaussfilt3 (cystscan._matlab), voxels are visited in MATLAB's column-major
+order, the threshold uses the sample standard deviation, and the large-cyst
+merge compares every pair of peaks, as in MATLAB.
 """
 
 from __future__ import annotations
 
 import numpy as np
 import nibabel as nib
-from scipy.ndimage import gaussian_filter, label
+from scipy.ndimage import label
 from scipy.spatial.distance import cdist
-from skimage.exposure import equalize_adapthist
 from skimage.morphology import local_maxima
 
+from cystscan._matlab import adapthisteq, imgaussfilt3
 from cystscan.params import load_published_params
 try:
     import edt as _edt
@@ -48,58 +51,43 @@ def detect_cyst_peaks(mask_path: str, params: list | np.ndarray) -> int:
     (min_sep_small, min_sep_large, vol_thresh,
      max_dist_merge, thresh_frac, gauss_sigma) = params
 
-    # Load mask
+    # Load mask (a trailing singleton dimension is dropped, as in MATLAB)
     img = nib.load(mask_path)
-    raw = np.squeeze(np.asarray(img.dataobj, dtype=np.int16))
+    raw = np.squeeze(np.asarray(img.dataobj))
     cyst_mask = (raw == 2)
 
     if not cyst_mask.any():
         return 0
 
-    # Distance transform, normalised to [0, 1]
+    # Distance transform (single precision, as bwdist), normalised to [0, 1]
     dt = _distance_transform(cyst_mask)
-    dt_max = dt.max()
-    if dt_max > 0:
-        dt /= dt_max
+    dt /= dt.max()
 
-    # Per-slice adaptive histogram equalisation (CLAHE)
-    # MATLAB's adapthisteq with Range='original' (default) maps output back to
-    # the input slice's own [min, max] range.  skimage's equalize_adapthist
-    # always outputs [0, 1], so we rescale explicitly to match MATLAB.
+    # Per-slice adaptive histogram equalisation (MATLAB adapthisteq defaults)
     for z in range(dt.shape[2]):
-        slc = dt[:, :, z]
-        slc_min, slc_max = float(slc.min()), float(slc.max())
-        if slc_max > slc_min:
-            clahe = equalize_adapthist(slc)          # → [0, 1]
-            dt[:, :, z] = (clahe * (slc_max - slc_min) + slc_min).astype(np.float32)
+        dt[:, :, z] = adapthisteq(dt[:, :, z])
 
-    # Gaussian smoothing
-    smoothed = gaussian_filter(dt, sigma=gauss_sigma)
+    # Gaussian smoothing and local maxima with 26-connectivity
+    smoothed = imgaussfilt3(dt, gauss_sigma)
+    del dt
+    peak_markers = local_maxima(smoothed, connectivity=3, allow_borders=True)
 
-    # Local maxima with 26-connectivity (3x3x3 neighbourhood)
-    peak_markers = local_maxima(smoothed, connectivity=3)
-
-    # Connected component analysis
+    # Connected components (26-connectivity); voxels in column-major order,
+    # like MATLAB's bwconncomp PixelIdxList.
     labeled, num_components = label(cyst_mask,
                                     structure=np.ones((3, 3, 3), dtype=np.int8))
-
-    # Pre-build flat pixel-index lists for each region (mirrors MATLAB's cc.PixelIdxList).
-    # This avoids scanning the full volume once per component.
-    flat_labels   = labeled.ravel()
-    flat_smoothed = smoothed.ravel()
-    flat_peaks    = peak_markers.ravel()
-    sort_order    = np.argsort(flat_labels, kind='stable')
-    sorted_labels = flat_labels[sort_order]
-    boundaries    = np.searchsorted(sorted_labels, np.arange(1, num_components + 2))
+    flat_labels   = labeled.ravel(order="F")
+    flat_smoothed = smoothed.ravel(order="F")
+    flat_peaks    = peak_markers.ravel(order="F")
+    sort_order    = np.argsort(flat_labels, kind="stable")
+    boundaries    = np.searchsorted(flat_labels[sort_order],
+                                    np.arange(1, num_components + 2))
 
     num_cysts = 0
 
     for comp_id in range(num_components):
         flat_idx    = sort_order[boundaries[comp_id]:boundaries[comp_id + 1]]
         cyst_volume = flat_idx.size
-
-        if cyst_volume == 0:
-            continue
 
         if cyst_volume > vol_thresh:
             min_sep  = min_sep_large
@@ -108,43 +96,35 @@ def detect_cyst_peaks(mask_path: str, params: list | np.ndarray) -> int:
             min_sep  = min_sep_small
             do_merge = False
 
-        # Local distance values and peak flags for this region
-        region_dt    = flat_smoothed[flat_idx]
+        region_dt    = flat_smoothed[flat_idx].astype(np.float64)
         region_peaks = flat_peaks[flat_idx]
 
-        # Adaptive threshold
+        # Adaptive threshold: mean + fraction * sample std (MATLAB std)
         mu  = region_dt.mean()
-        sig = region_dt.std()
+        sig = region_dt.std(ddof=1) if cyst_volume > 1 else 0.0
         thr = mu + thresh_frac * sig
 
-        # Valid peaks: must be a regional maximum and above threshold
-        valid_mask  = region_peaks & (region_dt >= thr)
-        # Convert flat indices to 3D coordinates for distance computation
-        valid_flat  = flat_idx[valid_mask]
-        peak_coords = np.column_stack(np.unravel_index(valid_flat, cyst_mask.shape))  # (K,3)
-
-        if peak_coords.shape[0] == 0:
+        valid_flat = flat_idx[region_peaks & (region_dt >= thr)]
+        if valid_flat.size == 0:
             continue
+        peak_coords = np.column_stack(
+            np.unravel_index(valid_flat, cyst_mask.shape, order="F")
+        ).astype(np.float64)
 
-        # Suppress nearby peaks (greedy, same logic as MATLAB)
-        D = cdist(peak_coords, peak_coords, metric='euclidean')
+        # Suppress peaks that are too close together (greedy, in voxel order)
+        D = cdist(peak_coords, peak_coords, metric="euclidean")
         np.fill_diagonal(D, np.inf)
-
         keep = np.ones(len(peak_coords), dtype=bool)
         for j in range(len(peak_coords)):
             if keep[j]:
-                too_close = D[j] < min_sep
-                keep[too_close] = False
+                keep[D[j] < min_sep] = False
                 keep[j] = True
 
-        # Merge peaks within large cysts
+        # Merge peaks within large cysts: as in MATLAB, a peak is dropped when
+        # any earlier peak (suppressed or not) lies closer than max_dist_merge.
         if do_merge:
-            surviving = np.where(keep)[0]
-            for j_idx, j in enumerate(surviving):
-                for k in surviving[j_idx + 1:]:
-                    if keep[j] and keep[k]:
-                        if np.linalg.norm(peak_coords[j] - peak_coords[k]) < max_dist_merge:
-                            keep[k] = False
+            close_to_earlier = np.triu(D < max_dist_merge, k=1).any(axis=0)
+            keep &= ~close_to_earlier
 
         num_cysts += int(keep.sum())
 

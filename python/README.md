@@ -2,11 +2,16 @@
 
 ## Requirements
 
-Python 3.10 or later. Install dependencies with:
+Python 3.10 or later. From the repository root, install the package with the
+analysis extras:
 
 ```bash
-pip install -r python/requirements.txt
+pip install -e ".[analysis]"
+# equivalent: pip install -r python/requirements.txt
 ```
+
+The scripts in this folder import the `cystscan` package, so they need this
+install step.
 
 ## Data setup
 
@@ -16,18 +21,21 @@ Same as the MATLAB pipeline: download from Zenodo and place `1_Segmentation_pipe
 
 | File | Description |
 |------|-------------|
-| `detect_cyst_peaks.py` | Core function: counts cysts in one mask given a parameter set |
-| `fitness_function.py` | Evaluates a parameter set against all training masks; returns MAPE |
-| `run_optimization.py` | Runs the genetic algorithm on the Optimization set (uses DEAP) |
+| `run_optimization.py` | Runs the genetic algorithm on the Optimization set (DEAP); `--seed` sets the random seed (default 42) |
 | `run_evaluation.py` | Evaluates on the Evaluation set using GA-generated parameters |
 | `run_evaluation_paper.py` | Same, using the published parameters (no prior optimisation needed) |
-| `sensitivity_analysis.py` | Morris screening + OAT + 2-D interaction analysis (uses SALib) |
+| `sensitivity_analysis.py` | Morris screening + OAT + 2-D interaction analysis (SALib) |
 | `bland_altman_plots.py` | Bland-Altman and regression plots (reads the evaluation CSV) |
-| `_evaluation_core.py` | Shared logic for the two evaluation scripts (not called directly) |
 
-> `detect_cyst_peaks` and `PUBLISHED_PARAMS` from `run_evaluation_paper.py` are
-> also imported by `segmentation/count_cysts.py` when counting cysts on new
-> inference outputs.
+The shared code lives in the `cystscan` package:
+
+| Module | Description |
+|--------|-------------|
+| `cystscan.counting` | `detect_cyst_peaks`: counts cysts in one mask given a parameter set; `PUBLISHED_PARAMS` |
+| `cystscan._matlab` | Python versions of MATLAB's `adapthisteq` and `imgaussfilt3`, used by the counting |
+| `cystscan.fitness` | Evaluates a parameter set against all training masks; returns MAPE |
+| `cystscan.evaluation` | Shared logic for the two evaluation scripts |
+| `cystscan.params` | Reads the published parameters from `cystscan/data/published_params.json` |
 
 ## Usage
 
@@ -35,7 +43,7 @@ Run all commands from the **repository root**:
 
 ```bash
 # Step 1 – optimise parameters (takes time)
-python python/run_optimization.py
+python python/run_optimization.py --seed 42
 
 # Step 2 – evaluate on held-out cases
 python python/run_evaluation.py           # uses BestParams.txt from Step 1
@@ -49,68 +57,42 @@ python python/sensitivity_analysis.py
 python python/bland_altman_plots.py
 ```
 
-## Differences from the MATLAB implementation
+## Agreement with the MATLAB implementation
 
-### Cyst counting algorithm (`detect_cyst_peaks.py` vs `detectCystPeaks.m`)
+### Cyst counting (`cystscan.counting` vs `matlab/detectCystPeaks.m`)
 
-| Aspect | MATLAB | Python |
-|--------|--------|--------|
-| Distance transform | `bwdist(~cystMask)` | `edt.edt()` (if installed) or `scipy.ndimage.distance_transform_edt` — functionally equivalent |
-| CLAHE | `adapthisteq(slice)` per Z-slice, default `Range='original'` (output mapped back to input range) | `skimage.exposure.equalize_adapthist(slice)` per Z-slice, then explicitly rescaled to input range to match MATLAB behaviour |
-| Gaussian smoothing | `imgaussfilt3` | `scipy.ndimage.gaussian_filter` — equivalent |
-| Local maxima | `imregionalmax(smoothedDT, 26)` | `skimage.morphology.local_maxima(smoothed, connectivity=3)` — 26-connected, equivalent |
-| Connected components | `bwconncomp(cystMask, 26)` | `scipy.ndimage.label` with full 3×3×3 structure — 26-connected, equivalent |
-| **Peak merge loop** | Iterates over **all** peaks (including those suppressed in the prior step); a suppressed peak can still suppress another via the merge criterion | Iterates only over **surviving** peaks after the suppression step; suppressed peaks do not participate in merging |
+From version 1.0.0 the Python counting gives the same counts as the MATLAB
+function that produced the paper's results. On the 10 masks of the Evaluation
+set, with the published parameters, both give 89, 88, 119, 101, 83, 77, 243,
+188, 82 and 137 cysts (K05, K14, K18, K25, K38, K66, X18, X33, X46, X50).
+`tests/test_matlab_parity.py` checks this when the Zenodo data are in `data/`.
 
-The peak-merge-loop difference is the primary source of count discrepancies on samples with many large cysts.
-MATLAB's behaviour is more aggressive (lower final counts on such samples).
+Earlier versions of the Python script differed by up to 21 cysts per sample
+(X18: 264 instead of 243). The causes, all fixed in 1.0.0:
 
-**Evaluation set: per-sample counts (published parameters)**
+| Step | MATLAB | Python before 1.0.0 | Python 1.0.0 |
+|------|--------|---------------------|--------------|
+| CLAHE | `adapthisteq` defaults: output over the full [0, 1] range, applied to every slice | `skimage` `equalize_adapthist`, rescaled to each slice's range, constant slices skipped | port of `adapthisteq` (`cystscan._matlab.adapthisteq`) |
+| Gaussian smoothing | `imgaussfilt3`: kernel radius `ceil(2σ)`, replicate padding | `scipy` `gaussian_filter`: radius `4σ`, reflect padding | port of `imgaussfilt3` |
+| Threshold | `std` with N−1 | `std` with N | N−1 |
+| Peak order | column-major (`ind2sub`) | row-major | column-major |
+| Large-cyst merge | compares every pair of peaks, suppressed ones included | compared surviving peaks only | as MATLAB |
 
-| Sample | MATLAB | Python | Δ |
-|--------|--------|--------|---|
-| K05 | 89 | 89 | 0 |
-| K14 | 88 | 88 | 0 |
-| K18 | 119 | 121 | +2 |
-| K25 | 101 | 102 | +1 |
-| K38 | 83 | 81 | −2 |
-| K66 | 77 | 81 | +4 |
-| X18 | 243 | 264 | **+21** |
-| X33 | 188 | 182 | −6 |
-| X46 | 82 | 83 | +1 |
-| X50 | 137 | 142 | +5 |
-
-X18 shows the largest discrepancy (+21, ~8.6%) because it contains the highest number of large-cyst components where the merge step is active.
-
-**Per-sample wall-clock time (Python, published parameters, 10-case evaluation set)**
-
-| Sample | Time (s) |
-|--------|----------|
-| K05 | 15 |
-| K14 | 13 |
-| K18 | 57 |
-| K25 | 12 |
-| K38 | 15 |
-| K66 | 14 |
-| X18 | 60 |
-| X33 | 58 |
-| X46 | 52 |
-| X50 | 58 |
-| **Mean** | **35** |
-| **Total** | **354** |
-
-XRATS cases are slower than KRATS cases due to their larger volume and higher cyst density. To compare against MATLAB, add `tic/toc` around each `detectCystPeaks` call inside `matlab/run_evaluation_paper.m`.
+The CLAHE and Gaussian steps account for most of the difference; the merge
+loop and peak order change a few counts on samples with large cysts.
 
 ### Other pipeline components
 
 | Aspect | MATLAB | Python |
 |--------|--------|--------|
-| Genetic algorithm | MATLAB `ga()` with adaptive feasible mutation/crossover | DEAP with `mutPolynomialBounded` + `cxBlend` — same bounds and population size, different internal operators |
-| Morris screening | Manual trajectory generation (Campolongo et al. 2007) | `SALib.sample.morris` + `SALib.analyze.morris` — methodologically equivalent |
+| Genetic algorithm | MATLAB `ga()` with adaptive feasible mutation/crossover | DEAP with `mutPolynomialBounded` + `cxBlend`: same bounds and population size, different internal operators |
+| Morris screening | Manual trajectory generation (Campolongo et al. 2007) | `SALib.sample.morris` + `SALib.analyze.morris`: same method |
 | Statistical plots | ggplot2 (R) | matplotlib |
 | Parallelism | `parfor` (MATLAB Parallel Computing Toolbox) | `concurrent.futures.ProcessPoolExecutor` |
 
-Because of these differences – particularly in the GA operators – optimised parameters will not be bit-for-bit identical to the MATLAB results, but should converge to similar values.
+Because of the GA operators, parameters optimised in Python will not be
+identical to the MATLAB ones; they should converge to similar values. The
+paper's parameters come from the MATLAB optimisation.
 
 ## Outputs
 
