@@ -31,6 +31,21 @@ ONE_CHANNEL_MODELS = {"n5_1C"}
 ALL_MODELS = TWO_CHANNEL_MODELS | ONE_CHANNEL_MODELS
 
 
+def case_id_from_path(path: Path) -> str:
+    """Case id of a scan file: the name without .nii/.nii.gz and without a
+    trailing nnU-Net channel suffix ``_0000``.
+
+    KRATS_024.nii.gz and KRATS_024_0000.nii.gz both give KRATS_024, so the
+    output mask is KRATS_024.nii.gz either way.
+    """
+    stem = Path(path).name
+    for ext in (".nii.gz", ".nii"):
+        if stem.endswith(ext):
+            stem = stem[: -len(ext)]
+            break
+    return stem.removesuffix("_0000")
+
+
 def run_inference(
     input_scan: Path,
     model_name: str,
@@ -66,13 +81,7 @@ def run_inference(
     setup_nnunet_env(models_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    # Derive case_id from filename (strip .nii.gz or .nii)
-    stem = input_scan.name
-    for ext in (".nii.gz", ".nii"):
-        if stem.endswith(ext):
-            stem = stem[: -len(ext)]
-            break
-    case_id = stem
+    case_id = case_id_from_path(input_scan)
 
     two_channel = model_name in TWO_CHANNEL_MODELS
 
