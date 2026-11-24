@@ -2,11 +2,15 @@
 #   docker run --gpus all -v <weights>:/models -v <scans>:/data cystscan:gpu \
 #       segment --input /data/<scan>_0000.nii.gz --model n5 --output /data/out
 # Weights are downloaded into /models at the first run (md5 checked), not baked in.
-FROM pytorch/pytorch:2.15.0-cuda13.2-cudnn9-runtime
+# CUDA 12.6 runs on NVIDIA drivers >= 560; a CUDA 13 base would need >= 580.
+FROM pytorch/pytorch:2.14.1-cuda12.6-cudnn9-runtime
 
 WORKDIR /opt/cystscan
-COPY requirements/lock-gpu.txt requirements/lock-gpu.txt
-RUN pip install --no-cache-dir -r requirements/lock-gpu.txt
+# torch, torchvision and the CUDA libraries come from the base image; the lock leaves
+# them out and --no-deps keeps pip from replacing them with other builds.
+COPY requirements/lock-gpu.txt requirements/constraints-gpu.txt requirements/
+RUN pip install --no-cache-dir --no-deps -r requirements/lock-gpu.txt \
+ && python -c "import torch; assert torch.__version__.startswith('2.14.1') and torch.version.cuda == '12.6', (torch.__version__, torch.version.cuda)"
 
 COPY pyproject.toml README.md LICENSE ./
 COPY cystscan cystscan
