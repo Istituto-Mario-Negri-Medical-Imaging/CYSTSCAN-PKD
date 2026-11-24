@@ -207,22 +207,26 @@ See [segmentation/README.md](segmentation/README.md) for module details, or [wor
 
 ---
 
-## Tests
+## For developers
+
+### Tests
 
 ```bash
 pip install -e ".[analysis,test]"
 pytest -m "not gpu"
 ```
 
-`tests/test_matlab_parity.py` compares the Python counts with the paper's MATLAB counts; it runs only when the Zenodo data are in `data/` and takes several minutes.
+These are the tests CI runs. `tests/test_matlab_parity.py` compares the Python counts with the paper's MATLAB counts; it runs only when the Zenodo data are in `data/` and takes several minutes.
 
-`tests/test_segmentation.py::test_segmentation_gpu` runs the `n5` model end to end on one scan of your own and checks the cyst Dice against its reference mask (at least 0.80); it needs an NVIDIA GPU and the `[segmentation]` extra:
+### GPU check before a release
+
+Run this before a release and after any update of nnU-Net, PyTorch, CUDA or the GPU image. It segments one scan with the `n5` model end to end and checks the cyst Dice against a manually corrected mask of the same scan (at least 0.80). It needs an NVIDIA GPU, the `[segmentation]` extra and a scan with its reference mask; CI skips it.
 
 ```bash
 CYSTSCAN_TEST_SCAN=scans/case_0000.nii.gz CYSTSCAN_TEST_REFERENCE=scans/case_mask.nii.gz pytest -m gpu -s
 ```
 
-The test also prints the cyst count on both masks, without asserting it: the counts in the paper come from manually corrected masks, and the peak-based count reacts to small boundary differences, so a mask with a high Dice can still give a different count.
+A failure means the installation is broken (CUDA, weights, dependencies) or the scan differs from the training data (scanner, resolution); the test cannot tell which. It also prints the cyst count on both masks, without asserting it: the counts in the paper come from manually corrected masks, and the peak-based count reacts to small boundary differences, so a mask with a high Dice can still give a different count.
 
 ---
 
