@@ -6,6 +6,10 @@
 FROM pytorch/pytorch:2.14.1-cuda12.6-cudnn9-runtime
 
 WORKDIR /opt/cystscan
+# The base image ships Ubuntu's Python 3.12 with torch in its system site-packages, and that
+# Python is marked externally managed (PEP 668); inside this single-purpose image pip may
+# install into it. lock-gpu.txt is resolved for Python 3.12.
+ENV PIP_BREAK_SYSTEM_PACKAGES=1
 # torch, torchvision and the CUDA libraries come from the base image; the lock leaves
 # them out and --no-deps keeps pip from replacing them with other builds.
 COPY requirements/lock-gpu.txt requirements/constraints-gpu.txt requirements/
