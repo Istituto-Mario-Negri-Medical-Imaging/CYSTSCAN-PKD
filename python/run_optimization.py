@@ -2,17 +2,15 @@
 Genetic algorithm optimisation of cyst-counting parameters using DEAP.
 
 Reads the Optimization set from data/, runs the GA, and writes results
-to results/optimization/.
+to results/optimization/. Use --seed INT (default 42) for a reproducible run.
 
 This is a Python translation of run_optimization.m.
 See python/README.md for differences from the MATLAB implementation.
 """
 
-import os
+import argparse
 import sys
 import random
-import time
-import warnings
 from pathlib import Path
 
 import numpy as np
@@ -21,11 +19,9 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
-from deap import base, creator, tools, algorithms
+from deap import base, creator, tools
 
-# Ensure the python/ directory is on the path when called from elsewhere
-sys.path.insert(0, str(Path(__file__).parent))
-from fitness_function import evaluate_params
+from cystscan.fitness import evaluate_params
 
 
 # ---- Parameter bounds (must match MATLAB) ---------------------------------
@@ -68,7 +64,19 @@ def _clip(individual):
     return individual
 
 
-def run_optimization():
+def seed_everything(seed: int) -> None:
+    """Seed Python's and NumPy's random generators (DEAP uses Python's)."""
+    random.seed(seed)
+    np.random.seed(seed)
+
+
+def random_individual() -> list[float]:
+    """One parameter vector drawn uniformly within [LB, UB]."""
+    return [float(LB[i] + random.random() * (UB[i] - LB[i])) for i in range(6)]
+
+
+def run_optimization(seed: int = 42):
+    seed_everything(seed)
     repo_root  = Path(__file__).resolve().parent.parent
     data_dir   = repo_root / 'data' / '2_Cyst_counting_pipeline' / 'Optimization set'
     mask_dir   = data_dir / 'Cyst masks'
@@ -112,11 +120,10 @@ def run_optimization():
 
     toolbox = base.Toolbox()
 
-    def random_individual():
-        ind = [float(LB[i] + random.random() * (UB[i] - LB[i])) for i in range(6)]
-        return creator.Individual(ind)
+    def new_individual():
+        return creator.Individual(random_individual())
 
-    toolbox.register('individual', random_individual)
+    toolbox.register('individual', new_individual)
     toolbox.register('population', tools.initRepeat, list, toolbox.individual)
 
     def eval_individual(ind):
@@ -210,7 +217,7 @@ def run_optimization():
             n_reinit = round(REINIT_FRAC * (POP_SIZE - ELITE_COUNT))
             reinit_idx = random.sample(range(ELITE_COUNT, POP_SIZE), n_reinit)
             for idx in reinit_idx:
-                population[idx] = random_individual()
+                population[idx] = new_individual()
                 population[idx].fitness.values = eval_individual(population[idx])
             stall_gen = 0
 
@@ -351,4 +358,7 @@ def _write_report(best_params, best_score, m, history, output_dir, gt_counts):
 
 
 if __name__ == '__main__':
-    run_optimization()
+    parser = argparse.ArgumentParser(description=__doc__.splitlines()[1])
+    parser.add_argument('--seed', type=int, default=42,
+                        help='random seed for a reproducible run (default: 42)')
+    run_optimization(seed=parser.parse_args().seed)

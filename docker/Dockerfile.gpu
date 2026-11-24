@@ -1,0 +1,26 @@
+# Segmentation and counting on an NVIDIA GPU:
+#   docker run --gpus all -v <weights>:/models -v <scans>:/data cystscan:gpu \
+#       segment --input /data/<scan>_0000.nii.gz --model n5 --output /data/out
+# Weights are downloaded into /models at the first run (md5 checked), not baked in.
+# CUDA 12.6 runs on NVIDIA drivers >= 560; a CUDA 13 base would need >= 580.
+FROM pytorch/pytorch:2.14.1-cuda12.6-cudnn9-runtime
+
+WORKDIR /opt/cystscan
+# The base image ships Ubuntu's Python 3.12 with torch in its system site-packages, and that
+# Python is marked externally managed (PEP 668); inside this single-purpose image pip may
+# install into it. lock-gpu.txt is resolved for Python 3.12.
+ENV PIP_BREAK_SYSTEM_PACKAGES=1
+# torch, torchvision and the CUDA libraries come from the base image; the lock leaves
+# them out and --no-deps keeps pip from replacing them with other builds.
+COPY requirements/lock-gpu.txt requirements/constraints-gpu.txt requirements/
+RUN pip install --no-cache-dir --no-deps -r requirements/lock-gpu.txt \
+ && python -c "import torch; assert torch.__version__.startswith('2.14.1') and torch.version.cuda == '12.6', (torch.__version__, torch.version.cuda)"
+
+COPY pyproject.toml README.md LICENSE ./
+COPY cystscan cystscan
+RUN pip install --no-cache-dir --no-deps .
+
+WORKDIR /
+VOLUME ["/models"]
+ENTRYPOINT ["cystscan"]
+CMD ["--help"]

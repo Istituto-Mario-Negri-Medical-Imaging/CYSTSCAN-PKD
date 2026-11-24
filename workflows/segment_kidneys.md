@@ -7,14 +7,13 @@ model, then count the cysts using the published optimal parameters.
 
 ## Prerequisites
 
-- Python 3.10+ with nnunetv2 installed (e.g. in a dedicated virtual environment)
-- Required packages (in addition to nnunetv2):
+- Python 3.10+ (e.g. in a dedicated virtual environment)
+- The package with its segmentation extra, installed from the repository root
+  (this installs nnunetv2, PyTorch, SimpleITK, requests and tqdm):
 
 ```bash
-pip install SimpleITK scipy requests tqdm
+pip install -e ".[segmentation]"
 ```
-
-- The `segmentation/` module in this repository (no separate installation needed)
 
 ---
 
@@ -61,8 +60,8 @@ python -m segmentation.count_cysts \
 ```
 
 Point `--input-dir` at the same folder used as `--output` in Step 1.
-The script applies the published optimal parameters (from
-`python/run_evaluation_paper.py`) to every `.nii.gz` file it finds.
+The script applies the published parameters
+(`cystscan/data/published_params.json`) to every `.nii.gz` file it finds.
 
 **Output:** printed counts + optional CSV (`case_id, cyst_count`).
 
@@ -87,7 +86,8 @@ python -m segmentation.count_cysts \
 
 | Problem | Fix |
 |---------|-----|
-| `No Zenodo URL configured` | Fill in `ZENODO_URLS` (see above) |
+| `checksum mismatch for <model>` | The download was corrupt and has been deleted; run the command again |
+| `Unknown model` | Use one of `n5`, `n10`, `n15`, `n20`, `n5_1C` |
 | `nnUNetv2_predict: command not found` | Activate the environment where nnunetv2 is installed |
 | Unexpected cyst counts | Verify the Sobel channel: mean of channel 1 in the preprocessed input should be ≈75.8 (training fingerprint) |
 | Wrong model directory structure after extraction | Ensure the zip contains `nnUNet_results/…` at the root |

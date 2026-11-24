@@ -1,4 +1,4 @@
-"""_evaluation_core.py
+"""cystscan.evaluation (formerly python/_evaluation_core.py)
 Shared logic for run_evaluation.py and run_evaluation_paper.py.
 Not intended to be called directly.
 """
@@ -13,9 +13,7 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
-# Ensure python/ is on the path
-sys.path.insert(0, str(Path(__file__).parent))
-from detect_cyst_peaks import detect_cyst_peaks
+from cystscan.counting import detect_cyst_peaks
 
 
 def _id_to_filename(sample_id: str) -> str:
@@ -36,13 +34,14 @@ def _compute_metrics(predicted: np.ndarray, gt: np.ndarray) -> dict:
     return {'MAPE': MAPE, 'MPE': MPE, 'MAE': MAE, 'RMSE': RMSE, 'R2': R2}
 
 
-def run_evaluation_core(params, output_dir: Path, label: str = ''):
+def run_evaluation_core(params, output_dir: Path, label: str = '', *, data_dir: Path):
+    """Evaluate params on the Evaluation set in data_dir
+    (<repo>/data/2_Cyst_counting_pipeline/Evaluation set in the paper layout)."""
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    repo_root = Path(__file__).resolve().parent.parent
-    data_dir = repo_root / 'data' / '2_Cyst_counting_pipeline' / 'Evaluation set'
-    
+    data_dir = Path(data_dir)
+
     mask_dir = data_dir / 'Cyst masks'
     xls_file = data_dir / 'O1_O2_counts.xlsx'
 
@@ -99,7 +98,7 @@ def run_evaluation_core(params, output_dir: Path, label: str = ''):
     fig.savefig(output_dir / 'scatter.png', dpi=150)
     fig.savefig(output_dir / 'scatter.svg')
     plt.close(fig)
-    print(f'Scatter plot saved.\n')
+    print('Scatter plot saved.\n')
 
 
 def _scatter_panel(ax, gt, pred, m, gt_label, color):

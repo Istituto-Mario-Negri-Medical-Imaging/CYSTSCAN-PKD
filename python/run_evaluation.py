@@ -10,8 +10,7 @@ from pathlib import Path
 
 import numpy as np
 
-sys.path.insert(0, str(Path(__file__).parent))
-from _evaluation_core import run_evaluation_core
+from cystscan.evaluation import run_evaluation_core
 
 
 def main():
@@ -32,6 +31,7 @@ def main():
         params=params,
         output_dir=repo_root / 'results' / 'evaluation',
         label='GA-generated parameters',
+        data_dir=repo_root / 'data' / '2_Cyst_counting_pipeline' / 'Evaluation set',
     )
 
 

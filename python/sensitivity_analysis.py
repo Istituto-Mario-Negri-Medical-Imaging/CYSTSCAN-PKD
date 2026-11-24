@@ -13,7 +13,6 @@ results are methodologically equivalent.
 import sys
 import time
 from pathlib import Path
-from concurrent.futures import ProcessPoolExecutor
 import os
 
 import numpy as np
@@ -22,19 +21,12 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
-sys.path.insert(0, str(Path(__file__).parent))
-from fitness_function import evaluate_params
+from cystscan.fitness import evaluate_params
+from cystscan.params import load_published_params
 
 # ---- Configuration --------------------------------------------------------
 
-OPTIMAL_PARAMS = np.array([
-    4.27269938837114,
-    18.2632731580751,
-    42144.3492985436,
-    14.9647743085524,
-    0.111299008136904,
-    0.918315428393029,
-])
+OPTIMAL_PARAMS = load_published_params()
 PARAM_NAMES = ['minPeakSepSmall', 'minPeakSepLarge', 'largeCystVolThresh',
                'maxPeakDistMerge', 'thresholdFraction', 'gaussianSigma']
 LB = OPTIMAL_PARAMS * 0.7

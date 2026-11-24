@@ -1,4 +1,4 @@
-"""fitness_function.py
+"""cystscan.fitness (formerly python/fitness_function.py)
 Evaluate a parameter set against ground-truth cyst counts.
 
 This is a direct Python translation of fitness_function.m.
@@ -7,7 +7,7 @@ This is a direct Python translation of fitness_function.m.
 from __future__ import annotations
 import numpy as np
 from concurrent.futures import ProcessPoolExecutor
-from detect_cyst_peaks import detect_cyst_peaks
+from cystscan.counting import detect_cyst_peaks
 
 
 def _worker(args):
@@ -36,7 +36,6 @@ def evaluate_params(
     metrics : dict with per-case and aggregate statistics.
     """
     gt = np.asarray(gt_counts, dtype=float)
-    n  = len(gt_masks)
 
     import os
     if n_workers == -1:

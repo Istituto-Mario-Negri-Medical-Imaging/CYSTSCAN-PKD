@@ -13,8 +13,8 @@ scriptDir = fileparts(mfilename('fullpath'));
 addpath(scriptDir);
 
 %% Configuration
-optimalParams = [4.27269938837114, 18.2632731580751, 42144.3492985436, ...
-                 14.9647743085524, 0.111299008136904, 0.918315428393029];
+cfg = jsondecode(fileread(fullfile(scriptDir, '..', 'cystscan', 'data', 'published_params.json')));
+optimalParams = cfg.values(:)';
 paramNames    = {'minPeakSepSmall', 'minPeakSepLarge', 'largeCystVolThresh', ...
                  'maxPeakDistMerge', 'thresholdFraction', 'gaussianSigma'};
 

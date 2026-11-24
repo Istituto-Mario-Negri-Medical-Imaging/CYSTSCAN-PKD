@@ -5,23 +5,10 @@ This script can be run without prior optimisation.
 Results are written to results/evaluation_paper/.
 """
 
-import sys
 from pathlib import Path
 
-import numpy as np
-
-sys.path.insert(0, str(Path(__file__).parent))
-from _evaluation_core import run_evaluation_core
-
-# Published parameters (identical to those in sensitivity_analysis.m)
-PUBLISHED_PARAMS = np.array([
-    4.27269938837114,
-    18.2632731580751,
-    42144.3492985436,
-    14.9647743085524,
-    0.111299008136904,
-    0.918315428393029,
-])
+from cystscan.counting import PUBLISHED_PARAMS
+from cystscan.evaluation import run_evaluation_core
 
 
 def main():
@@ -34,6 +21,7 @@ def main():
         params=PUBLISHED_PARAMS,
         output_dir=repo_root / 'results' / 'evaluation_paper',
         label='Published parameters',
+        data_dir=repo_root / 'data' / '2_Cyst_counting_pipeline' / 'Evaluation set',
     )
 
 

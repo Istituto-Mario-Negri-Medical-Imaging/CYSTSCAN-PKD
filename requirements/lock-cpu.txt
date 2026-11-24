@@ -1,0 +1,84 @@
+edt==3.1.2
+    # via cystscan (pyproject.toml)
+imageio==2.38.0 ; python_full_version < '3.11'
+    # via scikit-image
+imageio==2.38.2 ; python_full_version >= '3.11'
+    # via scikit-image
+importlib-resources==7.1.0 ; python_full_version < '3.12'
+    # via nibabel
+lazy-loader==0.6
+    # via scikit-image
+networkx==3.4.2 ; python_full_version < '3.11'
+    # via scikit-image
+networkx==3.6.1 ; python_full_version == '3.11.*'
+    # via scikit-image
+networkx==3.7 ; python_full_version >= '3.12'
+    # via scikit-image
+nibabel==5.4.2 ; python_full_version < '3.11'
+    # via cystscan (pyproject.toml)
+nibabel==5.5.0 ; python_full_version >= '3.11'
+    # via cystscan (pyproject.toml)
+numpy==2.2.6 ; python_full_version < '3.11'
+    # via
+    #   cystscan (pyproject.toml)
+    #   edt
+    #   imageio
+    #   nibabel
+    #   scikit-image
+    #   scipy
+    #   tifffile
+numpy==2.4.6 ; python_full_version == '3.11.*'
+    # via
+    #   cystscan (pyproject.toml)
+    #   edt
+    #   imageio
+    #   nibabel
+    #   scikit-image
+    #   scipy
+    #   tifffile
+numpy==2.5.5 ; python_full_version >= '3.12'
+    # via
+    #   cystscan (pyproject.toml)
+    #   edt
+    #   imageio
+    #   nibabel
+    #   scikit-image
+    #   scipy
+    #   tifffile
+packaging==26.3
+    # via
+    #   lazy-loader
+    #   nibabel
+    #   scikit-image
+pillow==12.3.0 ; python_full_version < '3.11'
+    # via
+    #   imageio
+    #   scikit-image
+pillow==13.0.0 ; python_full_version >= '3.11'
+    # via
+    #   imageio
+    #   scikit-image
+scikit-image==0.25.2 ; python_full_version < '3.11'
+    # via cystscan (pyproject.toml)
+scikit-image==0.26.0 ; python_full_version >= '3.11'
+    # via cystscan (pyproject.toml)
+scipy==1.15.3 ; python_full_version < '3.11'
+    # via
+    #   cystscan (pyproject.toml)
+    #   scikit-image
+scipy==1.17.1 ; python_full_version == '3.11.*'
+    # via
+    #   cystscan (pyproject.toml)
+    #   scikit-image
+scipy==1.18.1 ; python_full_version >= '3.12'
+    # via
+    #   cystscan (pyproject.toml)
+    #   scikit-image
+tifffile==2025.5.10 ; python_full_version < '3.11'
+    # via scikit-image
+tifffile==2026.3.3 ; python_full_version == '3.11.*'
+    # via scikit-image
+tifffile==2026.11.16 ; python_full_version >= '3.12'
+    # via scikit-image
+typing-extensions==4.16.0 ; python_full_version < '3.13'
+    # via nibabel

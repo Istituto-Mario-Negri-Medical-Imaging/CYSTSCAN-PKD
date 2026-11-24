@@ -32,6 +32,10 @@ CYSTSCAN-PKD/
 | `run_evaluation_paper.m` | Same, using the published parameters (no prior GA run needed) |
 | `sensitivity_analysis.m` | Morris screening + OAT + 2-D interaction analysis |
 | `statistical_analysis.R` | Bland-Altman and regression plots (R, reads the CSV from evaluation) |
+| `run_evaluation_paper_pred.m` | Counts on the masks predicted by a segmentation model: `run_evaluation_paper_pred(predDir)` |
+
+The published parameters are read from `cystscan/data/published_params.json`, the same file the Python code reads.
+The Python counting (`cystscan.counting`) gives the same counts as `detectCystPeaks.m`; see `python/README.md`.
 
 ## Usage
 
