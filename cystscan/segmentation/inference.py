@@ -16,7 +16,9 @@ After running, pass --output to segmentation/count_cysts.py to count cysts.
 from __future__ import annotations
 
 import argparse
+import shutil
 import subprocess
+import sys
 import tempfile
 from pathlib import Path
 
@@ -29,6 +31,21 @@ _FOLDS         = ["0", "1", "2", "3", "4"]
 TWO_CHANNEL_MODELS = {"n5", "n10", "n15", "n20"}
 ONE_CHANNEL_MODELS = {"n5_1C"}
 ALL_MODELS = TWO_CHANNEL_MODELS | ONE_CHANNEL_MODELS
+
+
+def predict_command() -> str:
+    """Path of nnUNetv2_predict: next to the running interpreter first (a virtual
+    environment used without activation), then on PATH."""
+    sibling = Path(sys.executable).parent / "nnUNetv2_predict"
+    if sibling.is_file():
+        return str(sibling)
+    found = shutil.which("nnUNetv2_predict")
+    if found is None:
+        raise RuntimeError(
+            "nnUNetv2_predict not found: install the [segmentation] extra "
+            "(pip install 'cystscan[segmentation]')"
+        )
+    return found
 
 
 def case_id_from_path(path: Path) -> str:
@@ -46,13 +63,33 @@ def case_id_from_path(path: Path) -> str:
     return stem.removesuffix("_0000")
 
 
+def validate_input(input_scan: Path, model_name: str) -> None:
+    """Check the model name and the scan before any download or nnU-Net call.
+
+    Raises ValueError for an unknown model, a missing file, or an image that
+    is not 3-D once singleton dimensions are dropped. Only the header is read.
+    """
+    if model_name not in ALL_MODELS:
+        raise ValueError(f"Unknown model '{model_name}'. Choose from: {sorted(ALL_MODELS)}")
+    input_scan = Path(input_scan)
+    if not input_scan.is_file():
+        raise ValueError(f"Scan not found: {input_scan}")
+    import nibabel as nib
+
+    full_shape = nib.load(input_scan).shape
+    if len([n for n in full_shape if n != 1]) != 3:
+        raise ValueError(
+            f"Scan must be a 3-D image; {input_scan.name} has shape {full_shape}"
+        )
+
+
 def run_inference(
     input_scan: Path,
     model_name: str,
     output_dir: Path,
     models_dir: Path,
-) -> None:
-    """Run nnUNet segmentation on a single microCT scan.
+) -> Path:
+    """Run nnUNet segmentation on a single microCT scan and return the mask path.
 
     Parameters
     ----------
@@ -64,15 +101,20 @@ def run_inference(
         Directory where the segmentation mask will be saved.
     models_dir : Path
         Root directory for model weights. Weights are downloaded here if absent.
+
+    Returns
+    -------
+    Path
+        The mask written by nnU-Net, ``output_dir / f"{case_id}.nii.gz"``.
     """
+    input_scan, output_dir, models_dir = Path(input_scan), Path(output_dir), Path(models_dir)
+    validate_input(input_scan, model_name)
+
     # Imported here so the module loads without the [segmentation] extra.
     from cystscan.segmentation.download import (
         download_model, model_is_downloaded, setup_nnunet_env,
     )
     from cystscan.segmentation.preprocessing import prepare_nnunet_input
-
-    if model_name not in ALL_MODELS:
-        raise ValueError(f"Unknown model '{model_name}'. Choose from: {sorted(ALL_MODELS)}")
 
     # Download weights if needed
     if not model_is_downloaded(model_name, models_dir):
@@ -96,7 +138,7 @@ def run_inference(
 
         print(f"Running nnUNetv2_predict (model={model_name}, case={case_id}) ...")
         cmd = [
-            "nnUNetv2_predict",
+            predict_command(),
             "-i", tmp_in,
             "-o", str(output_dir),
             "-d", _DATASET_ID,
@@ -106,7 +148,11 @@ def run_inference(
         ]
         subprocess.run(cmd, check=True)
 
-    print(f"\nSegmentation mask saved to: {output_dir}")
+    mask_path = output_dir / f"{case_id}.nii.gz"
+    if not mask_path.is_file():
+        raise RuntimeError(f"nnU-Net finished but {mask_path} was not written")
+    print(f"\nSegmentation mask saved to: {mask_path}")
+    return mask_path
 
 
 def main():
