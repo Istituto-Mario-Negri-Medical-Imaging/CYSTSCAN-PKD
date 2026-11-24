@@ -29,4 +29,10 @@
   corrupt archive is deleted and the download fails with an error.
 - `python/run_optimization.py --seed` for repeatable optimisation runs.
 - Test suite (pytest), synthetic test mask, CI workflow, CPU and GPU
-  Dockerfiles with pinned dependency versions.
+  Dockerfiles with pinned dependency versions. The GPU image uses PyTorch
+  2.14.1 with CUDA 12.6 (NVIDIA driver 560 or later).
+- `cystscan segment` checks the model name and the scan (exists, 3-D) before
+  any download, returns the mask path, and finds `nnUNetv2_predict` next to the
+  Python interpreter, so a virtual environment works without activation.
+- `test_segmentation_gpu`: optional end-to-end GPU check of `n5` on a scan
+  and reference mask given by `CYSTSCAN_TEST_SCAN` and `CYSTSCAN_TEST_REFERENCE`.

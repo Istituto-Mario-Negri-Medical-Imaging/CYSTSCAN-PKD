@@ -49,7 +49,7 @@ docker run --rm --gpus all -v "$PWD/models:/models" -v "$PWD/scans:/data" cystsc
 ```
 
 Pinned dependency versions for the images are in `requirements/lock-cpu.txt` and `requirements/lock-gpu.txt`.
-The GPU image is based on `pytorch/pytorch:2.15.0-cuda13.2-cudnn9-runtime` and needs an NVIDIA driver that supports CUDA 13.2.
+The GPU image is based on `pytorch/pytorch:2.14.1-cuda12.6-cudnn9-runtime` and needs an NVIDIA driver that supports CUDA 12.6 (driver 560 or later).
 
 ### Hardware
 
@@ -215,6 +215,14 @@ pytest -m "not gpu"
 ```
 
 `tests/test_matlab_parity.py` compares the Python counts with the paper's MATLAB counts; it runs only when the Zenodo data are in `data/` and takes several minutes.
+
+`tests/test_segmentation.py::test_segmentation_gpu` runs the `n5` model end to end on one scan of your own and checks the cyst Dice against its reference mask (at least 0.80); it needs an NVIDIA GPU and the `[segmentation]` extra:
+
+```bash
+CYSTSCAN_TEST_SCAN=scans/case_0000.nii.gz CYSTSCAN_TEST_REFERENCE=scans/case_mask.nii.gz pytest -m gpu -s
+```
+
+The test also prints the cyst count on both masks, without asserting it: the counts in the paper come from manually corrected masks, and the peak-based count reacts to small boundary differences, so a mask with a high Dice can still give a different count.
 
 ---
 
